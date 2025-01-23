@@ -5,6 +5,10 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <title inertia>{{ config('app.name', 'DeepText') }}</title>
+        
+        <script
+             src="https://cdn.lordicon.com/lordicon.js"
+        ></script>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -18,4 +22,5 @@
     <body class="font-sans antialiased">
         @inertia
     </body>
+
 </html>
