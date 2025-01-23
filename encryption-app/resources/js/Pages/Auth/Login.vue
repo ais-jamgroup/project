@@ -1,94 +1,132 @@
 <script setup>
-import Checkbox from '@/Components/Checkbox.vue';
-import GuestLayout from '@/Layouts/GuestLayout.vue';
-import InputError from '@/Components/InputError.vue';
-import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import TextInput from '@/Components/TextInput.vue';
-import { Head, Link, useForm } from '@inertiajs/vue3';
+    import Checkbox from '@/Components/Checkbox.vue';
+    import GuestLayout from '@/Layouts/GuestLayout.vue';
+    import InputError from '@/Components/InputError.vue';
+    import InputLabel from '@/Components/InputLabel.vue';
+    import PrimaryButton from '@/Components/PrimaryButton.vue';
+    import TextInput from '@/Components/TextInput.vue';
+    import { Head, Link, useForm } from '@inertiajs/vue3';
 
-defineProps({
-    canResetPassword: {
-        type: Boolean,
-    },
-    status: {
-        type: String,
-    },
-});
-
-const form = useForm({
-    email: '',
-    password: '',
-    remember: false,
-});
-
-const submit = () => {
-    form.post(route('login'), {
-        onFinish: () => form.reset('password'),
+    defineProps({
+        canResetPassword: {
+            type: Boolean,
+        },
+        status: {
+            type: String,
+        },
     });
-};
+
+    const form = useForm({
+        email: '',
+        password: '',
+        remember: false,
+    });
+
+    const submit = () => {
+        form.post(route('login'), {
+            onFinish: () => form.reset('password'),
+        });
+    };
 </script>
 
 <template>
-    <GuestLayout>
-        <Head title="Log in" />
+    <div class="bg-[#303c6c] 
+        min-h-screen flex flex-col 
+        items-center justify-center 
+        px-6 text-center">
 
-        <div v-if="status" class="mb-4 text-sm font-medium text-green-600">
-            {{ status }}
+        <Head title="Log in" />
+        
+        <!-- Logo -->
+        <div class="mb-10">
+            
+            <lord-icon
+                src="https://cdn.lordicon.com/jdgfsfzr.json"
+                trigger="loop"
+                colors="primary:#f4976c,secondary:#FBE8A6"
+                style="width: 120px; height: 120px"
+            ></lord-icon>
         </div>
 
-        <form @submit.prevent="submit">
-            <div>
-                <InputLabel for="email" value="Email" />
+        <!-- Welcome Text -->
+        <h1 class="text-4xl font-bold text-[#FBE8A6] mb-6">
+            DeepText
+        </h1>
+        <p class="text-lg text-[#d2fdff] mb-8">
+            Secure messaging made simple. Log in to continue your journey.
+        </p>
 
+        <!-- Form -->
+        <form @submit.prevent="submit" class="w-full max-w-md space-y-6 text-left">
+            <!-- Status Message -->
+            <div v-if="status" class="text-center text-green-600">
+                {{ status }}
+            </div>
+
+            <!-- Email -->
+            <div>
+                <InputLabel for="email" value="Email" class="text-[#FBE8A6]" />
                 <TextInput
                     id="email"
                     type="email"
-                    class="mt-1 block w-full"
+                    class="mt-2 block 
+                        w-full border-[#b4dfe5] 
+                        focus:ring-[#f4976c] 
+                        focus:border-[#f4976c] 
+                        rounded-lg"
                     v-model="form.email"
                     required
                     autofocus
                     autocomplete="username"
                 />
-
-                <InputError class="mt-2" :message="form.errors.email" />
+                <InputError class="mt-2 text-[#f4976c]" :message="form.errors.email" />
             </div>
 
-            <div class="mt-4">
-                <InputLabel for="password" value="Password" />
-
+            <!-- Password -->
+            <div>
+                <InputLabel 
+                    for="password" 
+                    value="Password" 
+                    class="text-[#FBE8A6]" />
+                    
                 <TextInput
                     id="password"
                     type="password"
-                    class="mt-1 block w-full"
+                    class="mt-2 block 
+                        w-full border-[#b4dfe5] 
+                        focus:ring-[#f4976c] 
+                        focus:border-[#f4976c] 
+                        rounded-lg"
                     v-model="form.password"
                     required
                     autocomplete="current-password"
                 />
-
-                <InputError class="mt-2" :message="form.errors.password" />
+                <InputError class="mt-2 text-[#f4976c]" :message="form.errors.password" />
             </div>
 
-            <div class="mt-4 block">
+            <!-- Remember Me -->
+            <div>
                 <label class="flex items-center">
-                    <Checkbox name="remember" v-model:checked="form.remember" />
-                    <span class="ms-2 text-sm text-gray-600 dark:text-gray-400"
-                        >Remember me</span
-                    >
+                    <Checkbox
+                        name="remember"
+                        v-model:checked="form.remember"
+                        class="text-[#FBE8A6]"
+                    />
+                    <span class="ml-2 text-sm text-[#d2fdff]">Remember me</span>
                 </label>
             </div>
 
-            <div class="mt-4 flex items-center justify-end">
+            <!-- Forgot Password & Submit Button -->
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <Link
                     v-if="canResetPassword"
                     :href="route('password.request')"
-                    class="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:text-gray-400 dark:hover:text-gray-100 dark:focus:ring-offset-gray-800"
+                    class="text-sm text-[#FBE8A6] underline hover:text-[#f4976c] focus:outline-none focus:ring-2 focus:ring-[#f4976c]"
                 >
                     Forgot your password?
                 </Link>
-
                 <PrimaryButton
-                    class="ms-4"
+                    class="px-8 py-3 bg-[#f4976c] text-white rounded-lg shadow-lg hover:bg-[#f08055] focus:ring-2 focus:ring-[#f4976c] focus:outline-none"
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
                 >
@@ -96,5 +134,5 @@ const submit = () => {
                 </PrimaryButton>
             </div>
         </form>
-    </GuestLayout>
+    </div>
 </template>

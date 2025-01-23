@@ -1,29 +1,35 @@
 <script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
+    import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+    import { Head } from '@inertiajs/vue3';
+    import Messaging from './Messaging.vue';
+    import '../../css/dashboard/dashboard.css';
+
+    const props = defineProps({
+        auth: {
+            type: Object,
+            required: true
+        }
+    });
 </script>
 
 <template>
     <Head title="Dashboard" />
 
     <AuthenticatedLayout>
-        <template #header>
-            <h2
-                class="text-xl font-semibold leading-tight text-gray-800 dark:text-gray-200"
-            >
-                Dashboard
-            </h2>
-        </template>
-
-        <div class="py-12">
-            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                <div
-                    class="overflow-hidden bg-white shadow-sm sm:rounded-lg dark:bg-gray-800"
-                >
-                    <div class="p-6 text-gray-900 dark:text-gray-100">
-                        You're logged in!
-                    </div>
-                </div>
+        <div class="dashboard-container relative">
+            <div class="absolute top-4 right-6 flex items-center space-x-4">
+                <img 
+                    :src="auth.user.avatar || '/images/default-avatar.png'" 
+                    alt="User Avatar" 
+                    class="avatar"
+                    @click="$inertia.visit(route('profile.edit'))"
+                />
+                <span class="hidden md:inline-block text-sm text-[#303c6c] font-medium">
+                    {{ auth.user.name || 'User' }}
+                </span>
+            </div>
+            <div class="dashboard-content">
+                <Messaging :userId="auth.user.id" />
             </div>
         </div>
     </AuthenticatedLayout>
