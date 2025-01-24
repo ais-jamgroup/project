@@ -10,6 +10,7 @@ class Message extends Model
         'sender_id',
         'receiver_id',
         'message',
+        'is_encrypted',
     ];
 
     public function sender()
@@ -21,5 +22,4 @@ class Message extends Model
     {
         return $this->belongsTo(User::class, 'receiver_id');
     }
-    
 }
