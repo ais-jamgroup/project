@@ -37,7 +37,6 @@
 
         <Head title="Log in" />
         
-        <!-- Logo -->
         <div class="mb-10">
             
             <lord-icon
@@ -48,7 +47,6 @@
             ></lord-icon>
         </div>
 
-        <!-- Welcome Text -->
         <h1 class="text-4xl font-bold text-[#FBE8A6] mb-6">
             DeepText
         </h1>
@@ -56,16 +54,16 @@
             Secure messaging made simple. Log in to continue your journey.
         </p>
 
-        <!-- Form -->
         <form @submit.prevent="submit" class="w-full max-w-md space-y-6 text-left">
-            <!-- Status Message -->
             <div v-if="status" class="text-center text-green-600">
                 {{ status }}
             </div>
 
-            <!-- Email -->
             <div>
-                <InputLabel for="email" value="Email" class="text-[#FBE8A6]" />
+                <div class="text-[#FBE8A6] !important">
+                    <InputLabel for="email" value="Email" />
+                </div>
+
                 <TextInput
                     id="email"
                     type="email"
@@ -82,7 +80,6 @@
                 <InputError class="mt-2 text-[#f4976c]" :message="form.errors.email" />
             </div>
 
-            <!-- Password -->
             <div>
                 <InputLabel 
                     for="password" 
@@ -104,7 +101,6 @@
                 <InputError class="mt-2 text-[#f4976c]" :message="form.errors.password" />
             </div>
 
-            <!-- Remember Me -->
             <div>
                 <label class="flex items-center">
                     <Checkbox
@@ -116,7 +112,6 @@
                 </label>
             </div>
 
-            <!-- Forgot Password & Submit Button -->
             <div class="flex flex-col md:flex-row justify-between items-center gap-4">
                 <Link
                     v-if="canResetPassword"
