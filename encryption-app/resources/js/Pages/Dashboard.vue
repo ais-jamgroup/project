@@ -1,15 +1,18 @@
 <script setup>
-    import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-    import { Head } from '@inertiajs/vue3';
-    import Messaging from './Messaging.vue';
-    import '../../css/dashboard/dashboard.css';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { Head } from '@inertiajs/vue3';
+import Messaging from './Messaging.vue';
+import MinimizableMessaging from './Behavior/MinimizableMessaging.vue';
+import '../../css/dashboard/dashboard.css';
+import FreedomWell from './FreedomWell.vue';
 
-    const props = defineProps({
-        auth: {
-            type: Object,
-            required: true
-        }
-    });
+const props = defineProps({
+    auth: {
+        type: Object,
+        required: true,
+    },
+});
+
 </script>
 
 <template>
@@ -28,8 +31,27 @@
                     {{ auth.user.name || 'User' }}
                 </span>
             </div>
-            <div class="dashboard-content">
-                <Messaging :userId="auth.user.id" />
+
+            <div class="app-header">
+                <lord-icon
+                    src="https://cdn.lordicon.com/xvmmqwjv.json"
+                    trigger="hover"
+                    stroke="light"
+                    colors="primary:#121331,secondary:#ee8f66,tertiary:#ffc738,quaternary:#303c6c,quinary:#ebe6ef"
+                    style="width:50px;height:50px">
+                </lord-icon>
+                <h1 class="app-name">DeepText</h1>
+                <p class="app-tagline">Your space for secure and free expression</p>
+            </div>
+
+            <div class="freedom-well-container">
+                <FreedomWell />
+            </div>
+
+            <div>
+                <MinimizableMessaging>
+                    <Messaging :userId="auth.user.id" />
+                </MinimizableMessaging>
             </div>
         </div>
     </AuthenticatedLayout>

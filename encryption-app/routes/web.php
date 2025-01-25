@@ -40,4 +40,7 @@ Route::get('/users', function () {
     return \App\Models\User::where('id', '!=', auth()->id())->get();
 })->middleware('auth');
 
+
+Route::post('/validate-key', [MessageController::class, 'validateKey']);
+
 require __DIR__.'/auth.php';
