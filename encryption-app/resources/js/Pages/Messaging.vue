@@ -2,8 +2,22 @@
   <div class="messaging-container">
     <!-- Receiver Selection -->
     <div class="user-profiles">
+      <!-- Search Input -->
+      <div class="search-container">
+        <input
+          type="text"
+          v-model="searchQuery"
+          placeholder="Search users..."
+          class="search-input"
+        />
+        <button class="search-button" @click="handleSearch">
+          🔍
+        </button>
+      </div>
+
+      <!-- Filtered User List -->
       <div
-        v-for="user in users"
+        v-for="user in filteredUsers"
         :key="user.id"
         class="user-profile"
         :class="{ active: selectedReceiver === user.id }"
@@ -18,34 +32,33 @@
     <div class="messages-list">
       <div v-for="message in messages" :key="message.id" class="message">
         <template v-if="message.is_encrypted">
-          <strong>{{ message.sender.name }}:</strong>
+          <strong>{{ message.sender?.name || 'Unknown Sender' }}:</strong>
           <div>
-            <!-- Clickable encrypted message -->
+            <!-- Placeholder for encrypted message -->
             <span
-              v-if="!message.decryptedMessage"
+              v-if="!message.decryptedMessage && !message.showDecryptionField"
               @click="toggleDecryptionField(message)"
               class="encrypted-message"
             >
-              {{ formatEncryptedMessage(message.message) }}
+              🔒 Encrypted Message (Click to decrypt)
             </span>
-            <!-- Show decrypted message -->
-            <span v-else>🔓 {{ message.decryptedMessage }}</span>
 
-            <!-- toggled -->
-            <div v-if="message.showDecryptionField">
+            <!-- Field to enter the decryption key -->
+            <div v-if="message.showDecryptionField && !message.decryptedMessage">
               <input
                 type="password"
                 v-model="message.decryptionKey"
                 placeholder="Enter decryption key"
               />
-              <button @click="decryptMessage(message)">
-                Decrypt
-              </button>
+              <button @click="decryptMessage(message)">Decrypt</button>
             </div>
+
+            <!-- Display decrypted message -->
+            <span v-else-if="message.decryptedMessage">🔓 {{ message.decryptedMessage }}</span>
           </div>
         </template>
         <template v-else>
-          <strong>{{ message.sender.name }}:</strong>
+          <strong>{{ message.sender?.name || 'Unknown Sender' }}:</strong>
           {{ message.message }}
         </template>
       </div>
@@ -53,25 +66,30 @@
 
     <!-- Message Input -->
     <div class="message-input">
-      <input
-        type="text"
-        v-model="newMessage"
-        placeholder="Type a message..."
-      />
-      <input
-        type="password"
-        v-model="encryptionKey"
-        placeholder="Enter encryption key (optional)"
-        class="encryption-key"
-      />
+      <input type="text" v-model="newMessage" placeholder="Type a message..." />
+      <div>
+        <select v-model="encryptionType">
+          <option value="none">None</option>
+          <option value="atbash">Atbash</option>
+          <option value="aes">AES (Base64)</option>
+        </select>
+        <input
+          type="password"
+          v-if="encryptionType === 'aes'"
+          v-model="encryptionKey"
+          placeholder="Enter encryption key (for AES)"
+        />
+      </div>
       <button @click="sendMessage">Send</button>
     </div>
   </div>
 </template>
 
+
 <script>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import axios from 'axios';
+import CryptoJS from 'crypto-js';
 
 export default {
   setup() {
@@ -80,64 +98,41 @@ export default {
     const selectedReceiver = ref(null);
     const users = ref([]);
     const encryptionKey = ref('');
+    const encryptionType = ref('none'); // Default to no encryption
+    const searchQuery = ref(''); 
 
-    const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    const reversedAlphabet = 'ZYXWVUTSRQPONMLKJIHGFEDCBA';
+    const filteredUsers = computed(() => {
+      if (!searchQuery.value) return users.value;
+      return users.value.filter((user) =>
+        user.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+      );
+    });
 
-    // Custom Encryption Logic
-    const customEncrypt = (text) => {
-        return text
-          .split('')
-          .map((char) => {
-            const isUpperCase = char === char.toUpperCase();
-            const baseChar = char.toUpperCase(); // Convert to uppercase for processing
-            const index = alphabet.indexOf(baseChar);
+    // Atbash encryption logic
+    const atbashEncrypt = (text) => {
+      const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const reversedAlphabet = 'ZYXWVUTSRQPONMLKJIHGFEDCBA';
 
-            if (index === -1) return char; // Non-alphabetic characters
+      return text
+        .split('')
+        .map((char) => {
+          const isUpperCase = char === char.toUpperCase();
+          const baseChar = char.toUpperCase();
+          const index = alphabet.indexOf(baseChar);
 
-            const reverseChar = reversedAlphabet[index]; //Reverse counterpart
-            const shiftedIndex = (alphabet.indexOf(reverseChar) + 1) % alphabet.length; //Shift forward
-            const encryptedChar = alphabet[shiftedIndex];
+          if (index === -1) return char; // Non-alphabetic characters remain unchanged
 
-            // Restore original case
-            return isUpperCase ? encryptedChar : encryptedChar.toLowerCase();
-          })
-          .join('');
-      };
-
-
-    // Custom Decryption Logic
-    const customDecrypt = (text) => {
-        return text
-          .split('')
-          .map((char) => {
-            const isUpperCase = char === char.toUpperCase();
-            const baseChar = char.toUpperCase(); // Convert to uppercase for processing
-            const index = alphabet.indexOf(baseChar);
-
-            if (index === -1) return char; // Non-alphabetic characters remain unchanged
-
-            const shiftedIndex = (index - 1 + alphabet.length) % alphabet.length; // Step 1: Shift backward
-            const reverseChar = reversedAlphabet[shiftedIndex]; // Step 2: Reverse counterpart
-
-            // Restore original case
-            return isUpperCase ? reverseChar : reverseChar.toLowerCase();
-          })
-          .join('');
-      };
-
-    // Format Encrypted Message for Display
-    const formatEncryptedMessage = (message) => {
-      return message; // Display the actual encrypted message
+          const reverseChar = reversedAlphabet[index];
+          return isUpperCase ? reverseChar : reverseChar.toLowerCase();
+        })
+        .join('');
     };
 
-    // Fetch Users
     const fetchUsers = async () => {
       const response = await axios.get('/users');
       users.value = response.data;
     };
 
-    // Fetch Messages
     const fetchMessages = async () => {
       if (!selectedReceiver.value) return;
 
@@ -152,71 +147,116 @@ export default {
         showDecryptionField: false,
       }));
     };
+    const padKey = (key) => {
+  const requiredLengths = [16, 24, 32];
+  let paddedKey = key;
 
-    // Decrypt Message
-    const decryptMessage = (message) => {
-      if (!message.decryptionKey) {
-        alert('Please enter a decryption key.');
-        return;
-      }
+  // Repeat the key until it matches the nearest valid AES key length
+  while (!requiredLengths.includes(paddedKey.length)) {
+    paddedKey += key;
+    if (paddedKey.length > 32) {
+      paddedKey = paddedKey.slice(0, 32); // Trim to max valid length
+      break;
+    }
+  }
+  return paddedKey;
+};
 
-      try {
-        const decrypted = customDecrypt(message.message);
-        if (decrypted) {
-          message.decryptedMessage = decrypted;
-          message.decryptionKey = '';
-          message.showDecryptionField = false;
-        } else {
-          alert('Invalid decryption key!');
-        }
-      } catch (error) {
-        alert('Decryption failed! Invalid key.');
-      }
-    };
+const sendMessage = async () => {
+  if (!newMessage.value.trim()) {
+    alert('Message cannot be empty.');
+    return;
+  }
 
-    // Toggle Decryption Field
+  let encryptedMessage = newMessage.value; // Default to plaintext
+  let isEncrypted = false;
+
+  if (encryptionType.value === 'aes') {
+    if (!encryptionKey.value.trim()) {
+      alert('Please provide an encryption key for AES.');
+      return;
+    }
+
+    // Pad the key
+    const key = CryptoJS.enc.Utf8.parse(padKey(encryptionKey.value)); // Expand key to valid AES length
+    const iv = CryptoJS.lib.WordArray.random(16); // Generate a random IV
+    const ciphertext = CryptoJS.AES.encrypt(newMessage.value, key, {
+      iv: iv,
+      mode: CryptoJS.mode.CBC,
+      padding: CryptoJS.pad.Pkcs7,
+    });
+
+    // Combine IV and ciphertext, encode in Base64
+    encryptedMessage = iv.concat(ciphertext.ciphertext).toString(CryptoJS.enc.Base64);
+    isEncrypted = true;
+  }
+
+  try {
+    // Send the encrypted message to the backend
+    const response = await axios.post('/messages', {
+      receiver_id: selectedReceiver.value,
+      message: encryptedMessage, // Send the encrypted message
+      is_encrypted: isEncrypted, // Indicate encryption
+      encryption_type: encryptionType.value, // Specify encryption type
+      encryption_key: encryptionKey.value, // Send the plaintext key (user-provided)
+    });
+
+    messages.value.push({
+      ...response.data,
+      decryptedMessage: null,
+      decryptionKey: '',
+      showDecryptionField: false,
+    });
+
+    // Reset input fields
+    newMessage.value = '';
+    encryptionKey.value = '';
+  } catch (error) {
+    alert('An error occurred while sending the message.');
+    console.error(error);
+  }
+};
+
+
+const decryptMessage = async (message) => {
+  if (!message.decryptionKey) {
+    alert('Please enter a decryption key.');
+    return;
+  }
+
+  try {
+    const response = await axios.post('/validate-key', {
+      message_id: message.id,
+      decryption_key: message.decryptionKey,
+    });
+
+    if (response.data.is_valid) {
+      message.decryptedMessage = response.data.decrypted_message;
+      message.showDecryptionField = false;
+      message.decryptionKey = '';
+    } else {
+      alert('Invalid decryption key!');
+    }
+  } catch (error) {
+    alert('Decryption failed! Please try again.');
+    console.error(error);
+  }
+};
+
+
     const toggleDecryptionField = (message) => {
       message.showDecryptionField = !message.showDecryptionField;
     };
 
-    // Send Message
-    const sendMessage = async () => {
-      if (!newMessage.value.trim()) {
-        alert('Message cannot be empty.');
-        return;
-      }
-
-      let encryptedMessage = newMessage.value;
-      const isEncrypted = encryptionKey.value.trim() !== '';
-
-      if (isEncrypted) {
-        encryptedMessage = customEncrypt(newMessage.value);
-      }
-
-      const response = await axios.post('/messages', {
-        receiver_id: selectedReceiver.value,
-        message: encryptedMessage,
-        is_encrypted: isEncrypted,
-      });
-
-      messages.value.push({
-        ...response.data,
-        decryptedMessage: null,
-        decryptionKey: '',
-        showDecryptionField: false,
-      });
-
-      newMessage.value = '';
-      encryptionKey.value = '';
+    const handleSearch = () => {
+      console.log('Search triggered for:', searchQuery.value);
     };
 
-    // Select Receiver
     const selectUser = (userId) => {
       selectedReceiver.value = userId;
       fetchMessages();
     };
 
-    // Fetch data when the component mounts
     onMounted(() => {
       fetchUsers();
     });
@@ -230,8 +270,12 @@ export default {
       sendMessage,
       decryptMessage,
       toggleDecryptionField,
-      formatEncryptedMessage,
       encryptionKey,
+      encryptionType,
+      padKey,
+      searchQuery,
+      filteredUsers,
+      handleSearch,
     };
   },
 };
@@ -241,8 +285,8 @@ export default {
   background: #b4dfe5;
   backdrop-filter: blur(20px);
   border-radius: 1rem;
-  border: 1px solid rgb(0, 0, 0);
-  box-shadow: 0 10px 25px rgb(0, 0, 0);
+  border: 1px solid #303c6c;
+  box-shadow: 0 10px 50px #303c6c;
   padding: 1.5rem;
   width: 100%;
   max-width: 900px;
@@ -262,7 +306,7 @@ export default {
   align-items: center;
   cursor: pointer;
   padding: 10px;
-  border: 1px solid #000000;
+  border: 1px solid #f4976c;
   border-radius: 10px;
   min-width: 80px;
   text-align: center;
@@ -321,5 +365,66 @@ export default {
   padding: 10px;
   cursor: pointer;
 }
+
+.search-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px 0 0 8px;
+  outline: none;
+}
+
+.search-button {
+  padding: 10px;
+  background-color: #f4976c;
+  border: none;
+  border-radius: 0 8px 8px 0;
+  color: white;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-button:hover {
+  background-color: #f08055;
+}
+
+.user-profiles {
+  margin-top: 10px;
+}
+
+::-webkit-scrollbar {
+    width: 2px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #f4976c;
+    border-radius: 50px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: #e0865c;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #d2fdff;
+    border-radius: 10px;
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #f4976c #d2fdff;
+}
+
 </style>
   
