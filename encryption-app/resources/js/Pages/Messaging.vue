@@ -210,8 +210,8 @@ export default {
     };
 
     const advancedAtbashEncrypt = (text) => {
-      const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-      const reversedAlphabet = 'ZYXWVUTSRQPONMLKJIHGFEDCBA';
+      const alphabet = 'ZYXWVUTSRQPONMLKJIHGFEDCBA~`/?><.,:;|}{][+_)(*&^%$#@!9876543210';
+      const reversedAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+[]{}|;:,.<>?/`~0123456789';
 
       return text
         .split('')

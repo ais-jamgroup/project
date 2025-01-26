@@ -158,8 +158,8 @@ private function atbashDecrypt($text){
 
 private function advancedAtbashDecrypt($text)
 {
-    $alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-    $reversedAlphabet = 'ZYXWVUTSRQPONMLKJIHGFEDCBA';
+    $alphabet = 'ZYXWVUTSRQPONMLKJIHGFEDCBA~`/?><.,:;|}{][+_)(*&^%$#@!9876543210';
+    $reversedAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+[]{}|;:,.<>?/`~0123456789';
 
     $decrypted = '';
 
