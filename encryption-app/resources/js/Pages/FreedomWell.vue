@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
-import CryptoJS from 'crypto-js'; // Install if not already included
-import rawSvg from '../../../public/images/noun-well-80360.svg?raw'; 
+import CryptoJS from 'crypto-js';
+import rawSvg from '../../../public/images/noun-well-80360.svg?raw';
 
 const posts = ref([]);
 const newPost = ref('');
@@ -65,7 +65,7 @@ function decryptPost(content, key) {
                     </button>
                 </div>
             </div>
-
+            
             <!-- Engaging Icon and Message -->
             <div class="freedom-well-message">
                 <div class="freedom-icon" v-html="svgContent"></div>
@@ -75,7 +75,7 @@ function decryptPost(content, key) {
             </div>
         </div>
 
-        <!-- Posts Section -->
+         <!-- Posts Section -->
         <div class="posts-container">
             <div class="posts">
                 <div
@@ -109,160 +109,157 @@ function decryptPost(content, key) {
 
 <style scoped>
 .freedom-well {
-    display: grid; /* Use CSS Grid for layout */
-    grid-template-columns: auto 1fr; /* Sidebar + Content */
+    display: grid;
+    grid-template-columns: auto 1fr;
     width: 100%;
     height: 100vh;
-    background: #fbe8a6; /* Yellow background */
+    background: #fbe8a6;
     overflow: hidden;
 }
 
-/* Sidebar */
 .sidebar {
-    width: 250px; /* Default sidebar width */
-    background: #303c6c; /* Dark blue sidebar */
-    transition: width 0.3s ease; /* Smooth transition when toggling sidebar */
+    width: 250px;
+    background: #303c6c;
+    transition: width 0.3s ease;
     color: white;
 }
 
-/* Collapsed Sidebar */
 .sidebar.collapsed {
-    width: 80px; /* Collapsed sidebar width */
+    width: 80px;
 }
 
-/* Content Area */
 .content {
-    padding: 1rem; /* Space around content */
-    flex-direction: column; /* Stack input and posts */
-    gap: 1rem; /* Space between post-input and posts */
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
 }
 
-/* Post Input Section */
 .post-input {
-    position: sticky; /* Keep it at the top */
-    top: 1rem; /* Adjust to make it lower (e.g., 4rem from the top) */
-    background: #d2fdff; /* Light blue background */
-    padding: 0.5rem 1rem; /* Reduce padding for shorter height */
-    max-width: 800px; /* Limit the width */
-    
-    border-radius: 10px; /* Rounded corners */
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    z-index: 1000; /* Ensure it's above other content */
-    display: flex; /* Use flex layout for alignment */
-    flex-direction: column; /* Stack child elements vertically */
-    gap: 0.5rem; /* Reduce the spacing between elements */
-    margin-top: 1rem; /* Prevent extra space below the input */
+    position: sticky;
+    top: 1rem;
+    background: #d2fdff;
+    padding: 2rem 2rem;
+    max-width: 800px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    margin-top: 1rem;
     overflow: hidden;
 }
 
-
-/* Posts Section */
 .posts {
-    flex: 1; /* Take up remaining space */
-    padding: 0.5rem; /* Reduce padding */
-    max-height: calc(100vh - 50px); /* Adjust height to fit the screen, accounting for post-input */
-    overflow-y: auto; /* Allow scrolling for long lists */
-    margin-top: 1rem; /* Add some spacing from the input area */
-    box-sizing: border-box; /* Prevent scrollbar from affecting width */
+    flex: 1;
+    padding: 0.5rem;
+    max-height: calc(100vh - 50px);
+    overflow-y: auto;
+    margin-top: 1rem;
+    box-sizing: border-box;
 }
 
-/* Individual Post Styling */
 .posts .post {
-    background: #d2fdff; /* Light blue background for posts */
-    border: 1px solid #b4dfe5; /* Border matching the theme */
-    margin-bottom: 0.5rem; /* Reduce space between posts */
+    background: #d2fdff;
+    border: 1px solid #b4dfe5;
+    margin-bottom: 0.5rem;
     padding: 1rem;
-    border-radius: 8px; /* Rounded corners */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
-/* Textarea Styles */
+
 textarea {
     resize: none;
-    font-family: 'Arial', sans-serif;
-    color: #303c6c; /* Dark text color */
-    min-height: 120px; /* Adequate height for the text area */
-    width: 100%; /* Full width of the parent container */
-    border: 1px solid #303c6c; /* Border color matching theme */
-    border-radius: 8px; /* Rounded corners */
-    padding: 0.8rem; /* Internal spacing */
-    box-sizing: border-box; /* Include padding in width/height calculation */
-    background: #fff; /* White background for readability */
-    margin-bottom: 1rem; /* Space below the textarea */
-}
-
-/* Input Field Styles */
-input {
-    font-family: 'Arial', sans-serif;
-    color: #303c6c; /* Dark text color */
-    padding: 0.8rem;
-    width: 70%; /* Make the input field longer */
-    border: 1px solid #303c6c; /* Border color matching theme */
+    color: #303c6c;
+    min-height: 120px;
+    width: 100%;
+    border: 1px solid #ccc;
     border-radius: 8px;
-    box-sizing: border-box; /* Include padding in width/height calculation */
-    background: #fff; /* White background for readability */
+    padding: 0.8rem;
+    box-sizing: border-box;
+    background: #fff;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
 }
 
-/* Checkbox and Label Styling */
+textarea:focus {
+    border-color: #f4976c;
+    background-color: #ffffff;
+    box-shadow: 0 0 5px rgba(244, 151, 108, 0.5);
+    outline: none;
+}
+
+input {
+    color: #303c6c;
+    padding: 0.8rem;
+    width: 70%;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-sizing: border-box;
+    background: #fff;
+    transition: all 0.3s ease;
+}
+
+input:focus {
+    border-color: #f4976c;
+    background-color: #ffffff;
+    box-shadow: 0 0 5px rgba(244, 151, 108, 0.5);
+    outline: none;
+}
+
 label {
-    font-family: 'Arial', sans-serif;
-    color: #303c6c; /* Dark text color for label */
+    color: #303c6c;
     display: flex;
     align-items: center;
-    gap: 0.5rem; /* Space between checkbox and label text */
 }
 
 input[type="checkbox"] {
-    accent-color: #f4976c; /* Checkbox color matching the theme */
+    accent-color: #f4976c;
     width: 20px;
     height: 20px;
     cursor: pointer;
 }
 
-/* Button Styles */
 button {
     padding: 0.8rem 1.5rem;
-    background: #f4976c; /* Orange button background */
+    background: #f4976c;
     color: white;
     font-weight: bold;
     border: none;
-    border-radius: 8px; /* Rounded corners */
+    border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth transitions */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Button shadow */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 button:hover {
-    background: #e0865c; /* Darker orange on hover */
-    transform: scale(1.05); /* Slight scaling effect */
+    background-color: #f08055;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Webkit-based Browsers (Chrome, Edge, Safari) */
 ::-webkit-scrollbar {
-    width: 2px; /* Make the scrollbar thin */
-    height: 6px; /* Horizontal scrollbar height */
+    width: 2px;
+    height: 6px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: #f4976c; /* Scrollbar thumb color */
-    border-radius: 50px; /* Rounded edges for the thumb */
+    background-color: #f4976c;
+    border-radius: 50px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background-color: #e0865c; /* Darker color on hover */
+    background-color: #e0865c;
 }
 
 ::-webkit-scrollbar-track {
-    background-color: #d2fdff; /* Track color */
-    border-radius: 10px; /* Rounded edges for the track */
+    background-color: #d2fdff;
+    border-radius: 10px;
 }
 
-/* Firefox */
 * {
-    scrollbar-width: thin; /* Make scrollbar thin */
-    scrollbar-color: #f4976c #d2fdff; /* Thumb color and track color */
+    scrollbar-width: thin;
+    scrollbar-color: #f4976c #d2fdff;
 }
 
-/* Freedom Well Message Section */
 .freedom-well-message {
     display: flex;
     align-items: center;
@@ -271,41 +268,37 @@ button:hover {
     margin-top: 1rem;
     margin-left: auto;
     margin-right: auto;
-    position: relative; 
+    position: relative;
     text-align: center;
 }
 
-/* Container for Icon and Text */
 .freedom-icon-container {
     position: relative;
     display: inline-block;
-    width: 120px; /* Adjust the size */
-    height: 120px; /* Adjust the size */
+    width: 120px;
+    height: 120px;
 }
 
-/* SVG Icon */
 .freedom-icon {
     width: 60%;
     height: 60%;
-    position: absolute; /* Make it the background layer */
+    position: absolute;
     top: 0;
     left: 0;
-    z-index: 1; /* Keep it below the text */
+    z-index: 1;
     fill: #f4976c;
 }
 
-/* Freedom Text */
 .freedom-text {
-    position: absolute; /* Position the text on top of the SVG */
-    top: 50%; /* Center vertically */
-    left: 63%; /* Center horizontally */
-    transform: translate(-15%, -15%); /* Adjust for proper centering */
-    z-index: 2; /* Keep it above the SVG */
+    position: absolute;
+    top: 50%;
+    left: 63%;
+    transform: translate(-15%, -15%);
+    z-index: 2;
     font-size: 1.3rem;
-    color: #303c6c; /* Match theme */
+    color: #303c6c;
     font-weight: bold;
     text-align: center;
     padding: 2rem;
 }
-
 </style>

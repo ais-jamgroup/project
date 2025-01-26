@@ -44,13 +44,16 @@
             </span>
 
             <!-- Field to enter the decryption key -->
-            <div v-if="message.showDecryptionField && !message.decryptedMessage">
+            <div v-if="message.showDecryptionField && !message.decryptedMessage" class="decryption-container">
               <input
                 type="password"
                 v-model="message.decryptionKey"
                 placeholder="Enter decryption key"
+                class="decryption-input"
               />
-              <button @click="decryptMessage(message)">Decrypt</button>
+              <button @click="decryptMessage(message)" class="decryption-button">
+                Decrypt
+              </button>
             </div>
 
             <!-- Display decrypted message -->
@@ -280,8 +283,10 @@ const decryptMessage = async (message) => {
   },
 };
 </script>
+
 <style>
-  .messaging-container {
+/* Messaging Container */
+.messaging-container {
   background: #b4dfe5;
   backdrop-filter: blur(20px);
   border-radius: 1rem;
@@ -292,6 +297,7 @@ const decryptMessage = async (message) => {
   max-width: 900px;
 }
 
+/* User Profiles Container */
 .user-profiles {
   display: flex;
   gap: 10px;
@@ -326,6 +332,7 @@ const decryptMessage = async (message) => {
   object-fit: cover;
 }
 
+/* Messages List */
 .messages-list {
   flex: 1;
   overflow-y: auto;
@@ -338,8 +345,17 @@ const decryptMessage = async (message) => {
 
 .message {
   margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 6px;
+  background-color: #ffffff; 
+  transition: background-color 0.3s ease;
 }
 
+.message:hover {
+  background-color: #b4dfe5;
+}
+
+/* Encrypted Message */
 .encrypted-message {
   color: #007bff;
   cursor: pointer;
@@ -350,27 +366,130 @@ const decryptMessage = async (message) => {
   color: #0056b3;
 }
 
+/* Message Input Container */
 .message-input {
   display: flex;
   gap: 10px;
+  margin-top: 10px;
 }
 
 .message-input input {
   flex: 1;
   padding: 10px;
   border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  font-size: 14px;
+  background-color: #f4f1de;
 }
 
-.message-input button {
-  padding: 10px;
+.message-input input:focus {
+  border-color: #f4976c;
+  background-color: #ffffff;
+  box-shadow: 0 0 5px rgba(244, 151, 108, 0.5);
+}
+
+/* Select Dropdown Styling */
+.message-input select {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  font-size: 14px;
+  background-color: #f4f1de;
+  color: #303c6c;
   cursor: pointer;
+  width: 130px;
 }
 
+.message-input select:focus {
+  border-color: #f4976c;
+  box-shadow: 0 0 5px rgba(244, 151, 108, 0.5);
+}
+
+/* Encryption Key Field */
+.message-input input[type="password"] {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  font-size: 14px;
+  background-color: #f4f1de;
+}
+
+.message-input input[type="password"]:focus {
+  border-color: #f4976c;
+  background-color: #ffffff;
+  box-shadow: 0 0 5px rgba(244, 151, 108, 0.5);
+}
+
+/* Decryption Container */
+.decryption-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  align-items: center;
+}
+
+/* Decryption Input Field */
+.decryption-input {
+  flex: 1;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  outline: none;
+  font-size: 14px;
+  background-color: #f4f1de;
+}
+
+.decryption-input:focus {
+  border-color: #f4976c;
+  background-color: #ffffff;
+  box-shadow: 0 0 5px rgba(244, 151, 108, 0.5);
+}
+
+/* Decryption Button */
+.decryption-button {
+  padding: 10px 14px;
+  background-color: #f4976c;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.decryption-button:hover {
+  background-color: #f08055;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Send Button */
+.message-input button {
+  padding: 10px 14px;
+  background-color: #f4976c;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.message-input button:hover {
+  background-color: #f08055;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Search Container */
 .search-container {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 5px;
   margin-bottom: 10px;
+  width: 300px;
 }
 
 .search-input {
@@ -379,10 +498,18 @@ const decryptMessage = async (message) => {
   border: 1px solid #ccc;
   border-radius: 8px 0 0 8px;
   outline: none;
+  background-color: #f4f1de;
+  color: #303c6c;
+}
+
+.search-input:focus {
+  border-color: #f4976c;
+  background-color: #ffffff;
+  box-shadow: 0 0 5px rgba(244, 151, 108, 0.5);
 }
 
 .search-button {
-  padding: 10px;
+  padding: 10px 14px;
   background-color: #f4976c;
   border: none;
   border-radius: 0 8px 8px 0;
@@ -392,39 +519,38 @@ const decryptMessage = async (message) => {
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: background-color 0.3s ease;
 }
 
 .search-button:hover {
   background-color: #f08055;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.user-profiles {
-  margin-top: 10px;
-}
-
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
-    width: 2px;
-    height: 6px;
+  width: 2px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-thumb {
-    background-color: #f4976c;
-    border-radius: 50px;
+  background-color: #f4976c;
+  border-radius: 50px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background-color: #e0865c;
+  background-color: #e0865c;
 }
 
 ::-webkit-scrollbar-track {
-    background-color: #d2fdff;
-    border-radius: 10px;
+  background-color: #d2fdff;
+  border-radius: 10px;
 }
 
 * {
-    scrollbar-width: thin;
-    scrollbar-color: #f4976c #d2fdff;
+  scrollbar-width: thin;
+  scrollbar-color: #f4976c #d2fdff;
 }
-
 </style>
+
   
