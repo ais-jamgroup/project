@@ -92,6 +92,7 @@ public function validateKey(Request $request)
         $message = Message::findOrFail($request->message_id);
 
         if ($message->encryption_type === 'aes') {
+            // AES Decryption Logic
             $paddedKey = $this->padKey($request->decryption_key);
 
             $decodedMessage = base64_decode($message->message);
@@ -110,10 +111,17 @@ public function validateKey(Request $request)
 
             return response()->json(['is_valid' => true, 'decrypted_message' => $decryptedMessage]);
         } elseif ($message->encryption_type === 'atbash') {
+            // Validate the decryption key for Atbash
+            if ($message->encryption_key !== $request->decryption_key) {
+                return response()->json(['is_valid' => false, 'error' => 'Invalid decryption key.'], 400);
+            }
+
+            // Decrypt the message using Atbash (symmetric decryption)
             $decryptedMessage = $this->atbashDecrypt($message->message);
             return response()->json(['is_valid' => true, 'decrypted_message' => $decryptedMessage]);
         }
 
+        // For plaintext or unsupported encryption types
         return response()->json(['is_valid' => true, 'decrypted_message' => $message->message]);
     } catch (\Exception $e) {
         \Log::error('Decryption failed for message ID ' . $request->message_id . ': ' . $e->getMessage());
@@ -121,8 +129,8 @@ public function validateKey(Request $request)
     }
 }
 
-private function atbashDecrypt($text)
-{
+
+private function atbashDecrypt($text){
     $alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     $reversedAlphabet = 'ZYXWVUTSRQPONMLKJIHGFEDCBA';
 
