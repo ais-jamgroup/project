@@ -58,7 +58,6 @@ export default {
 }
 
 .messaging-container-wrapper {
-  position: relative;
   padding: 1rem;
 }
 </style>
