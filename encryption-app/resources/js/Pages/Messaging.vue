@@ -99,6 +99,40 @@
             <span v-else-if="message.decryptedMessage">🔓 {{ message.decryptedMessage }}</span>
           </div>
         </template>
+        <template v-else-if="message.is_encrypted && message.encryption_type === 'advancedAtbash'">
+          <!-- Atbash Encrypted Message -->
+          <strong>{{ message.sender?.name || 'Unknown Sender' }}:</strong>
+          <div>
+            <!-- Show encrypted message and a clickable toggle -->
+            <span
+              v-if="!message.decryptedMessage && !message.showDecryptionField"
+              @click="toggleDecryptionField(message)"
+              class="encrypted-message"
+            >
+            
+              🔒 {{ message.message }} 
+            </span>
+
+            <!-- Show the decrypt button -->
+            <div v-if="message.showDecryptionField && !message.decryptedMessage" class="decryption-container">
+              <input
+                  type="password"
+                  v-model="message.decryptionKey"
+                  placeholder="Enter decryption key"
+                  class="decryption-input"
+                />
+              <button @click="decryptMessage(message)" class="decryption-button">
+                Decrypt
+              </button>
+              <button @click="toggleDecryptionField(message)" class="cancel-button">
+                Cancel
+              </button>
+            </div>
+
+            <!-- Show decrypted message -->
+            <span v-else-if="message.decryptedMessage">🔓 {{ message.decryptedMessage }}</span>
+          </div>
+        </template>
 
         <template v-else>
           <!-- Plaintext Message -->
@@ -115,11 +149,13 @@
         <select v-model="encryptionType">
           <option value="none">None</option>
           <option value="atbash">Atbash</option>
+          <option value="advancedAtbash">AdvancedAtbash</option>
           <option value="aes">AES (Base64)</option>
         </select>
+
         <input
           type="password"
-          v-if="encryptionType === 'aes' || encryptionType === 'atbash'"
+          v-if="encryptionType === 'aes' || encryptionType === 'atbash'|| encryptionType === 'advancedAtbash'"
           v-model="encryptionKey"
           placeholder="Enter encryption key"
         />
@@ -173,6 +209,32 @@ export default {
         .join('');
     };
 
+    const advancedAtbashEncrypt = (text) => {
+      const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const reversedAlphabet = 'ZYXWVUTSRQPONMLKJIHGFEDCBA';
+
+      return text
+        .split('')
+        .map((char) => {
+          const isUpperCase = char === char.toUpperCase();
+          const baseChar = char.toUpperCase();
+          const index = alphabet.indexOf(baseChar);
+
+          if (index === -1) return char; // Non-alphabetic characters remain unchanged
+
+          // Step 1: Reverse the character using Atbash
+          const reverseChar = reversedAlphabet[index];
+
+          // Step 2: Shift one position forward in the alphabet
+          const forwardIndex = (alphabet.indexOf(reverseChar) + 1) % alphabet.length;
+          const finalChar = alphabet[forwardIndex];
+
+          return isUpperCase ? finalChar : finalChar.toLowerCase();
+        })
+        .join('');
+    };
+
+
     const fetchUsers = async () => {
       const response = await axios.get('/users');
       users.value = response.data;
@@ -216,7 +278,15 @@ const sendMessage = async () => {
   let encryptedMessage = newMessage.value; // Default to plaintext
   let isEncrypted = false;
 
-  if (encryptionType.value === 'atbash') {
+  if (encryptionType.value === 'advancedAtbash') {
+    if (!encryptionKey.value.trim()) {
+      alert('Please provide an encryption key for AdvancedAtbash.');
+      return;
+    }
+
+    encryptedMessage = advancedAtbashEncrypt(newMessage.value); // Encrypt with Advanced Atbash
+    isEncrypted = true;
+  } else if (encryptionType.value === 'atbash') {
     if (!encryptionKey.value.trim()) {
       alert('Please provide an encryption key for Atbash.');
       return;
@@ -251,7 +321,12 @@ const sendMessage = async () => {
       message: encryptedMessage, // Send the encrypted message
       is_encrypted: isEncrypted, // Indicate encryption
       encryption_type: encryptionType.value, // Specify encryption type
-      encryption_key: encryptionType.value === 'atbash' || encryptionType.value === 'aes' ? encryptionKey.value : null, // Send key if required
+      encryption_key:
+        encryptionType.value === 'atbash' ||
+        encryptionType.value === 'aes' ||
+        encryptionType.value === 'advancedAtbash'
+          ? encryptionKey.value
+          : null, // Send key if required
     });
 
     messages.value.push({
@@ -272,6 +347,7 @@ const sendMessage = async () => {
 
 
 
+
 const decryptMessage = async (message) => {
   if (!message.decryptionKey) {
     alert('Please enter a decryption key.');
@@ -286,7 +362,10 @@ const decryptMessage = async (message) => {
     });
 
     if (response.data.is_valid) {
-      if (message.encryption_type === 'atbash') {
+      if (message.encryption_type === 'advancedAtbash') {
+        // Decrypt the message with Advanced Atbash if the key is valid
+        message.decryptedMessage = advancedAtbashEncrypt(message.message);
+      } else if (message.encryption_type === 'atbash') {
         // Decrypt the message with Atbash if the key is valid
         message.decryptedMessage = atbashEncrypt(message.message);
       } else if (message.encryption_type === 'aes') {
@@ -305,11 +384,12 @@ const decryptMessage = async (message) => {
   }
 };
 
-
     const toggleDecryptionField = (message) => {
       if (message.encryption_type === 'atbash') {
     message.showDecryptionField = !message.showDecryptionField;
   } else if (message.encryption_type === 'aes') {
+    message.showDecryptionField = !message.showDecryptionField;
+  }else if (message.encryption_type === 'advancedAtbash') {
     message.showDecryptionField = !message.showDecryptionField;
   }
     };

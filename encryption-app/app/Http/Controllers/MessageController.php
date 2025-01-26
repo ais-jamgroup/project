@@ -41,7 +41,7 @@ public function store(Request $request)
         'receiver_id' => 'required|exists:users,id',
         'message' => 'required|string', 
         'is_encrypted' => 'required|boolean',
-        'encryption_type' => 'nullable|string|in:none,atbash,aes',
+        'encryption_type' => 'nullable|string|in:none,atbash,aes,advancedAtbash',
         'encryption_key' => 'nullable|string',
     ]);
 
@@ -119,6 +119,14 @@ public function validateKey(Request $request)
             // Decrypt the message using Atbash (symmetric decryption)
             $decryptedMessage = $this->atbashDecrypt($message->message);
             return response()->json(['is_valid' => true, 'decrypted_message' => $decryptedMessage]);
+        }elseif ($message->encryption_type === 'advancedAtbash') {
+            if ($message->encryption_key !== $request->decryption_key) {
+                return response()->json(['is_valid' => false, 'error' => 'Invalid decryption key.'], 400);
+            }
+
+            // Advanced Atbash Decryption Logic
+            $decryptedMessage = $this->advancedAtbashDecrypt($message->message);
+            return response()->json(['is_valid' => true, 'decrypted_message' => $decryptedMessage]);
         }
 
         // For plaintext or unsupported encryption types
@@ -146,6 +154,35 @@ private function atbashDecrypt($text){
         $reversedChar = $reversedAlphabet[$index];
         return $isUpperCase ? $reversedChar : strtolower($reversedChar);
     })->implode('');
+}
+
+private function advancedAtbashDecrypt($text)
+{
+    $alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    $reversedAlphabet = 'ZYXWVUTSRQPONMLKJIHGFEDCBA';
+
+    $decrypted = '';
+
+    foreach (str_split($text) as $char) {
+        if (ctype_alpha($char)) {
+            $isUpperCase = ctype_upper($char);
+            $baseChar = strtoupper($char);
+
+            // Reverse using Atbash
+            $index = strpos($alphabet, $baseChar);
+            $reverseChar = $reversedAlphabet[$index];
+
+            // Shift one position forward
+            $forwardIndex = (strpos($alphabet, $reverseChar) + 1) % strlen($alphabet);
+            $finalChar = $alphabet[$forwardIndex];
+
+            $decrypted .= $isUpperCase ? $finalChar : strtolower($finalChar);
+        } else {
+            $decrypted .= $char; // Non-alphabetic characters remain unchanged
+        }
+    }
+
+    return $decrypted;
 }
 
 }
