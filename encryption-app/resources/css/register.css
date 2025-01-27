@@ -1,0 +1,105 @@
+.register-container {
+  background-color: #303c6c;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.register-logo {
+  margin-bottom: 2rem;
+}
+
+.register-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #fbe8a6;
+}
+
+.register-subtitle {
+  font-size: 1.125rem;
+  color: #d2fdff;
+  margin-bottom: 2rem;
+}
+
+.register-form {
+  width: 100%;
+  max-width: 48rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  text-align: left;
+}
+
+@media (min-width: 768px) {
+  .register-form {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.input-label {
+  font-size: 14px;
+  font-weight: bold;
+  color: #fbe8a6;
+}
+
+.form-input {
+  margin-top: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #b4dfe5;
+  border-radius: 0.5rem;
+  outline: none;
+  font-size: 1rem;
+}
+
+.form-input:focus {
+  border-color: #f4976c;
+  box-shadow: 0 0 0 2px #f4976c;
+}
+
+.error-message {
+  margin-top: 0.5rem;
+  color: #f4976c;
+}
+
+.form-footer {
+  grid-column: span 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.already-registered-link {
+  font-size: 16px;
+  color: #fbe8a6;
+  text-decoration: underline;
+}
+
+.already-registered-link:hover {
+  color: #f4976c;
+}
+
+.register-button {
+  padding: 0.75rem 2rem;
+  background-color: #f4976c;
+  color: white;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.register-button:hover {
+  background-color: #f08055;
+}
+
+.register-button.processing {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
