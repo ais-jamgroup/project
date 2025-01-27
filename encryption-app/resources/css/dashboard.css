@@ -1,0 +1,80 @@
+.dashboard-container {
+    background: #fbe8a6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    justify-content: center;
+    align-items: center;
+}
+
+.dashboard-container .absolute {
+    top: 1rem; 
+    right: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.avatar {
+    cursor: pointer;
+    border-radius: 50%; 
+}
+
+.freedom-well-container {
+    flex: 1;
+    width: 75%;
+    height: 75%;
+    margin: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.messaging-container-wrapper {
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 1000;
+}
+
+.minimized-icon {
+    z-index: 1001;
+}
+
+.app-header {
+    text-align: center;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background-color: #fbe8a6;
+    display: flex;
+    justify-content: center;
+}
+
+.app-header-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    max-width: 800px;
+    width: 100%;
+}
+
+.app-logo {
+    width: 60px;
+    height: auto;
+}
+
+.app-name {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #303c6c;
+    margin: 0;
+}
+
+.app-tagline {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #303c6c;
+    margin: 0.25rem 0 0;
+}
