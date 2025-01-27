@@ -1,3 +1,46 @@
+/* Styling for the delete button */
+.delete-button {
+  padding: 10px 14px;
+  background-color: #4A90E2;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.delete-button:hover {
+  background-color: #357ABD;
+}
+
+.decrypted-delete-button {
+  padding: 10px 14px;
+  background-color: #4A90E2;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.decrypted-delete-button:hover {
+  background-color: #357ABD;
+}
+
+/* Styling for message content */
+.message .content {
+  display: flex;
+  align-items: center;
+  flex-grow: 1; 
+}
+
+.message .delete-button {
+  margin-left: auto;
+  cursor: pointer;
+}
+
 .messaging-container {
   background: #b4dfe5;
   backdrop-filter: blur(20px);
@@ -278,3 +321,36 @@
   scrollbar-width: thin;
   scrollbar-color: #f4976c #d2fdff;
 }
+
+/* Snackbar styling */
+.snackbar {
+  visibility: hidden;
+  min-width: 250px;
+  margin-left: -125px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 2px;
+  padding: 16px;
+  position: fixed;
+  z-index: 1;
+  left: 50%;
+  bottom: 30px;
+  font-size: 17px;
+  transition: visibility 0.3s, opacity 0.3s ease-in-out;
+  opacity: 0;
+}
+
+.snackbar.show {
+  visibility: visible;
+  opacity: 1;
+}
+
+.snackbar.error {
+  background-color: #f44336;
+}
+
+.snackbar.success {
+  background-color: #4CAF50;
+}
+

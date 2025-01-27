@@ -178,11 +178,30 @@ private function advancedAtbashDecrypt($text)
 
             $decrypted .= $isUpperCase ? $finalChar : strtolower($finalChar);
         } else {
-            $decrypted .= $char; // Non-alphabetic characters remain unchanged
+            $decrypted .= $char;
         }
     }
 
     return $decrypted;
+}
+public function destroy($id)
+{
+    try {
+        $message = Message::where('id', $id)
+            ->where('sender_id', auth()->id())
+            ->first();
+
+        if (!$message) {
+            return response()->json(['error' => 'Message not found or unauthorized.'], 404);
+        }
+
+        $message->delete();
+
+        return response()->json(['success' => 'Message deleted successfully.']);
+    } catch (\Exception $e) {
+        \Log::error('Error deleting message: ' . $e->getMessage());
+        return response()->json(['error' => 'Unable to delete the message.'], 500);
+    }
 }
 
 }
