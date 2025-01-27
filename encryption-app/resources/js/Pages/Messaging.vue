@@ -334,8 +334,9 @@ export default {
               <p v-if="message.isInvalidKey" class="error-message"></p>
             </div>
 
-            <span v-else-if="message.decryptedMessage">🔓 {{ message.decryptedMessage }}
-              <button @click="deleteMessage(message.id)" class="delete-button">
+            <span v-else-if="message.decryptedMessage" class="decrypted-message-container">
+              <span>🔓 {{ message.decryptedMessage }}</span>
+              <button @click="deleteMessage(message.id)" class="decrypted-delete-button">
                 Delete
               </button>
             </span>
@@ -373,9 +374,9 @@ export default {
               <p v-if="message.isInvalidKey" class="error-message"></p>
             </div>
 
-            <span v-else-if="message.decryptedMessage">
-              🔓 {{ message.decryptedMessage }}
-              <button @click="deleteMessage(message.id)" class="delete-button">
+            <span v-else-if="message.decryptedMessage" class="decrypted-message-container">
+              <span>🔓 {{ message.decryptedMessage }}</span>
+              <button @click="deleteMessage(message.id)" class="decrypted-delete-button">
                 Delete
               </button>
             </span>
@@ -412,7 +413,8 @@ export default {
               <p v-if="message.isInvalidKey" class="error-message"></p>
             </div>
 
-            <span v-else-if="message.decryptedMessage">🔓 {{ message.decryptedMessage }}
+            <span v-else-if="message.decryptedMessage" class="decrypted-message-container">
+              <span>🔓 {{ message.decryptedMessage }}</span>
               <button @click="deleteMessage(message.id)" class="decrypted-delete-button">
                 Delete
               </button>
@@ -446,9 +448,6 @@ export default {
       </div>
       <button @click="sendMessage">Send</button>
     </div>
-
-  
-
 
     <!-- Snackbar -->
     <div
