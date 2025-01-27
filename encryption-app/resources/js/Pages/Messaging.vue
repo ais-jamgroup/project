@@ -31,16 +31,17 @@
     <!-- Messages List -->
     <div class="messages-list">
       <div v-for="message in messages" :key="message.id" class="message">
-        <template v-if="message.is_encrypted">
+        <template v-if="message.is_encrypted && message.encryption_type === 'aes'">
+          <!-- AES Encrypted Message -->
           <strong>{{ message.sender?.name || 'Unknown Sender' }}:</strong>
           <div>
-            <!-- Placeholder for encrypted message -->
+            <!-- Placeholder for AES-encrypted message -->
             <span
               v-if="!message.decryptedMessage && !message.showDecryptionField"
               @click="toggleDecryptionField(message)"
               class="encrypted-message"
             >
-              🔒 Encrypted Message (Click to decrypt)
+              🔒 Encrypted Message
             </span>
 
             <!-- Field to enter the decryption key -->
@@ -54,13 +55,87 @@
               <button @click="decryptMessage(message)" class="decryption-button">
                 Decrypt
               </button>
+              <button @click="toggleDecryptionField(message)" class="cancel-button">
+              Cancel
+            </button>
             </div>
 
-            <!-- Display decrypted message -->
+            <!-- Display decrypted AES message -->
             <span v-else-if="message.decryptedMessage">🔓 {{ message.decryptedMessage }}</span>
           </div>
         </template>
+
+        <template v-else-if="message.is_encrypted && message.encryption_type === 'atbash'">
+          <!-- Atbash Encrypted Message -->
+          <strong>{{ message.sender?.name || 'Unknown Sender' }}:</strong>
+          <div>
+            <!-- Show encrypted message and a clickable toggle -->
+            <span
+              v-if="!message.decryptedMessage && !message.showDecryptionField"
+              @click="toggleDecryptionField(message)"
+              class="encrypted-message"
+            >
+            
+              🔒 {{ message.message }} 
+            </span>
+
+            <!-- Show the decrypt button -->
+            <div v-if="message.showDecryptionField && !message.decryptedMessage" class="decryption-container">
+              <input
+                  type="password"
+                  v-model="message.decryptionKey"
+                  placeholder="Enter decryption key"
+                  class="decryption-input"
+                />
+              <button @click="decryptMessage(message)" class="decryption-button">
+                Decrypt
+              </button>
+              <button @click="toggleDecryptionField(message)" class="cancel-button">
+                Cancel
+              </button>
+            </div>
+
+            <!-- Show decrypted message -->
+            <span v-else-if="message.decryptedMessage">🔓 {{ message.decryptedMessage }}</span>
+          </div>
+        </template>
+        <template v-else-if="message.is_encrypted && message.encryption_type === 'advancedAtbash'">
+          <!-- Atbash Encrypted Message -->
+          <strong>{{ message.sender?.name || 'Unknown Sender' }}:</strong>
+          <div>
+            <!-- Show encrypted message and a clickable toggle -->
+            <span
+              v-if="!message.decryptedMessage && !message.showDecryptionField"
+              @click="toggleDecryptionField(message)"
+              class="encrypted-message"
+            >
+            
+              🔒 {{ message.message }} 
+            </span>
+
+            <!-- Show the decrypt button -->
+            <div v-if="message.showDecryptionField && !message.decryptedMessage" class="decryption-container">
+              <input
+                  type="password"
+                  v-model="message.decryptionKey"
+                  placeholder="Enter decryption key"
+                  class="decryption-input"
+                />
+              <button @click="decryptMessage(message)" class="decryption-button">
+                Decrypt
+              </button>
+              <button @click="toggleDecryptionField(message)" class="cancel-button">
+                Cancel
+              </button>
+            </div>
+
+            <!-- Show decrypted message -->
+            <span v-else-if="message.decryptedMessage">🔓 {{ message.decryptedMessage }}</span>
+          </div>
+        </template>
+
         <template v-else>
+          <!-- Plaintext Message -->
           <strong>{{ message.sender?.name || 'Unknown Sender' }}:</strong>
           {{ message.message }}
         </template>
@@ -74,14 +149,17 @@
         <select v-model="encryptionType">
           <option value="none">None</option>
           <option value="atbash">Atbash</option>
+          <option value="advancedAtbash">AdvancedAtbash</option>
           <option value="aes">AES (Base64)</option>
         </select>
+
         <input
           type="password"
-          v-if="encryptionType === 'aes'"
+          v-if="encryptionType === 'aes' || encryptionType === 'atbash'|| encryptionType === 'advancedAtbash'"
           v-model="encryptionKey"
-          placeholder="Enter encryption key (for AES)"
+          placeholder="Enter encryption key"
         />
+
       </div>
       <button @click="sendMessage">Send</button>
     </div>
@@ -131,6 +209,32 @@ export default {
         .join('');
     };
 
+    const advancedAtbashEncrypt = (text) => {
+      const alphabet = 'ZYXWVUTSRQPONMLKJIHGFEDCBA~`/?><.,:;|}{][+_)(*&^%$#@!9876543210';
+      const reversedAlphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+[]{}|;:,.<>?/`~0123456789';
+
+      return text
+        .split('')
+        .map((char) => {
+          const isUpperCase = char === char.toUpperCase();
+          const baseChar = char.toUpperCase();
+          const index = alphabet.indexOf(baseChar);
+
+          if (index === -1) return char; // Non-alphabetic characters remain unchanged
+
+          // Step 1: Reverse the character using Atbash
+          const reverseChar = reversedAlphabet[index];
+
+          // Step 2: Shift one position forward in the alphabet
+          const forwardIndex = (alphabet.indexOf(reverseChar) + 1) % alphabet.length;
+          const finalChar = alphabet[forwardIndex];
+
+          return isUpperCase ? finalChar : finalChar.toLowerCase();
+        })
+        .join('');
+    };
+
+
     const fetchUsers = async () => {
       const response = await axios.get('/users');
       users.value = response.data;
@@ -174,7 +278,23 @@ const sendMessage = async () => {
   let encryptedMessage = newMessage.value; // Default to plaintext
   let isEncrypted = false;
 
-  if (encryptionType.value === 'aes') {
+  if (encryptionType.value === 'advancedAtbash') {
+    if (!encryptionKey.value.trim()) {
+      alert('Please provide an encryption key for AdvancedAtbash.');
+      return;
+    }
+
+    encryptedMessage = advancedAtbashEncrypt(newMessage.value); // Encrypt with Advanced Atbash
+    isEncrypted = true;
+  } else if (encryptionType.value === 'atbash') {
+    if (!encryptionKey.value.trim()) {
+      alert('Please provide an encryption key for Atbash.');
+      return;
+    }
+
+    encryptedMessage = atbashEncrypt(newMessage.value); // Encrypt with Atbash
+    isEncrypted = true;
+  } else if (encryptionType.value === 'aes') {
     if (!encryptionKey.value.trim()) {
       alert('Please provide an encryption key for AES.');
       return;
@@ -201,7 +321,12 @@ const sendMessage = async () => {
       message: encryptedMessage, // Send the encrypted message
       is_encrypted: isEncrypted, // Indicate encryption
       encryption_type: encryptionType.value, // Specify encryption type
-      encryption_key: encryptionKey.value, // Send the plaintext key (user-provided)
+      encryption_key:
+        encryptionType.value === 'atbash' ||
+        encryptionType.value === 'aes' ||
+        encryptionType.value === 'advancedAtbash'
+          ? encryptionKey.value
+          : null, // Send key if required
     });
 
     messages.value.push({
@@ -221,6 +346,8 @@ const sendMessage = async () => {
 };
 
 
+
+
 const decryptMessage = async (message) => {
   if (!message.decryptionKey) {
     alert('Please enter a decryption key.');
@@ -228,13 +355,24 @@ const decryptMessage = async (message) => {
   }
 
   try {
+    // Send the key to the backend for validation
     const response = await axios.post('/validate-key', {
       message_id: message.id,
       decryption_key: message.decryptionKey,
     });
 
     if (response.data.is_valid) {
-      message.decryptedMessage = response.data.decrypted_message;
+      if (message.encryption_type === 'advancedAtbash') {
+        // Decrypt the message with Advanced Atbash if the key is valid
+        message.decryptedMessage = advancedAtbashEncrypt(message.message);
+      } else if (message.encryption_type === 'atbash') {
+        // Decrypt the message with Atbash if the key is valid
+        message.decryptedMessage = atbashEncrypt(message.message);
+      } else if (message.encryption_type === 'aes') {
+        // Handle AES decryption logic if necessary
+        message.decryptedMessage = response.data.decrypted_message;
+      }
+
       message.showDecryptionField = false;
       message.decryptionKey = '';
     } else {
@@ -246,9 +384,14 @@ const decryptMessage = async (message) => {
   }
 };
 
-
     const toggleDecryptionField = (message) => {
-      message.showDecryptionField = !message.showDecryptionField;
+      if (message.encryption_type === 'atbash') {
+    message.showDecryptionField = !message.showDecryptionField;
+  } else if (message.encryption_type === 'aes') {
+    message.showDecryptionField = !message.showDecryptionField;
+  }else if (message.encryption_type === 'advancedAtbash') {
+    message.showDecryptionField = !message.showDecryptionField;
+  }
     };
 
     const handleSearch = () => {
@@ -357,9 +500,8 @@ const decryptMessage = async (message) => {
 
 /* Encrypted Message */
 .encrypted-message {
-  color: #007bff;
+  color: #303c6c;
   cursor: pointer;
-  text-decoration: underline;
 }
 
 .encrypted-message:hover {
@@ -526,6 +668,22 @@ const decryptMessage = async (message) => {
   background-color: #f08055;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+
+.cancel-button {
+  padding: 10px 14px;
+  background-color: #ccc;
+  border: none;
+  border-radius: 8px;
+  color: #303c6c;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.cancel-button:hover {
+  background-color: #bbb;
+}
+
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
