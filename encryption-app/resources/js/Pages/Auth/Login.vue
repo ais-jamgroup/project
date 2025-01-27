@@ -121,12 +121,13 @@
                     Forgot your password?
                 </Link>
                 <PrimaryButton
-                    class="px-8 py-3 bg-[#f4976c] text-white rounded-lg shadow-lg hover:bg-[#f08055] focus:ring-2 focus:ring-[#f4976c] focus:outline-none"
+                    class="px-8 py-3 bg-[#F4976C] text-white rounded-lg shadow-lg hover:bg-[#F08055] focus:ring-2 focus:ring-[#F4976C] focus:outline-none"
                     :class="{ 'opacity-25': form.processing }"
                     :disabled="form.processing"
                 >
                     Log in
                 </PrimaryButton>
+
             </div>
         </form>
     </div>
