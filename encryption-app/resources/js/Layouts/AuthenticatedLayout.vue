@@ -2,8 +2,9 @@
 import { ref } from 'vue';
 import ApplicationLogo from '@/Components/ApplicationLogo.vue';
 import { Link } from '@inertiajs/vue3';
+import '../../css/authenticatedlayout.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
-
+ 
 const isSidebarOpen = ref(false);
 const sidebarItems = [
   { 
@@ -27,47 +28,44 @@ const logoutItem = {
 </script>
 
 <template>
-  <div class="flex h-screen bg-gray-900">
+  <div class="layout-container">
     <!-- Sidebar -->
     <div 
       :class="[ 
-        'fixed inset-y-0 left-0 z-30 w-64 transform transition-transform duration-300 ease-in-out flex flex-col justify-between',
-        isSidebarOpen ? 'translate-x-0' : '-translate-x-full' 
+        'sidebar-container',
+        isSidebarOpen ? 'sidebar-open' : 'sidebar-closed' 
       ]"
-      style="background-color: #3D405B;" 
     >
       <!-- Top Section -->
       <div>
-        <div class="flex items-center justify-center py-6">
+        <div class="logo-container">
           <Link :href="route('dashboard')">
-            <ApplicationLogo class="h-12 w-auto" style="color: #F4F1DE;" />
+            <ApplicationLogo class="app-logo" />
           </Link>
         </div>
 
-        <nav class="mt-10">
+        <nav class="sidebar-nav">
           <Link 
             v-for="item in sidebarItems" 
             :key="item.name"
             :href="route(item.route)"
             :method="item.method || 'get'"
-            class="flex items-center py-3 px-6 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200"
-            style="color: #F4F1DE;"
+            class="sidebar-item"
           >
-            <i :class="item.icon" class="mr-3 text-lg"></i>
+            <i :class="item.icon" class="sidebar-icon"></i>
             {{ item.name }}
           </Link>
         </nav>
       </div>
 
       <!-- Bottom Section -->
-      <div class="mb-4">
+      <div class="sidebar-footer">
         <Link 
           :href="route(logoutItem.route)"
           :method="logoutItem.method || 'get'"
-          class="flex items-center py-3 px-6 text-gray-300 hover:bg-gray-700 hover:text-white transition-colors duration-200"
-          style="color: #F4F1DE;"
+          class="sidebar-item"
         >
-          <i :class="logoutItem.icon" class="mr-3 text-lg"></i>
+          <i :class="logoutItem.icon" class="sidebar-icon"></i>
           {{ logoutItem.name }}
         </Link>
       </div>
@@ -76,11 +74,11 @@ const logoutItem = {
     <!-- Sidebar Toggle Button -->
     <button 
       @click="isSidebarOpen = !isSidebarOpen"
-      class="fixed top-4 left-4 z-40 p-2 text-gray-300 bg-gray-800 rounded-md hover:bg-gray-700"
+      class="sidebar-toggle"
     >
       <svg 
         v-if="!isSidebarOpen" 
-        class="w-6 h-6" 
+        class="toggle-icon" 
         fill="none" 
         stroke="currentColor" 
         viewBox="0 0 24 24"
@@ -94,7 +92,7 @@ const logoutItem = {
       </svg>
       <svg 
         v-else 
-        class="w-6 h-6" 
+        class="toggle-icon" 
         fill="none" 
         stroke="currentColor" 
         viewBox="0 0 24 24"
@@ -111,10 +109,9 @@ const logoutItem = {
     <!-- Main Content Area -->
     <div 
       :class="[ 
-        'flex-1 overflow-y-auto transition-all duration-300 ease-in-out', 
-        isSidebarOpen ? 'ml-64' : 'ml-0' 
+        'main-content',
+        isSidebarOpen ? 'content-shifted' : 'content-full' 
       ]"
-      style="background-color: #F2CC8F;"
     >
       <slot />
     </div>

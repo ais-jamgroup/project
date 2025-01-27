@@ -1,0 +1,81 @@
+.welcome-container {
+  background-color: #303c6c;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.welcome-logo {
+  margin-bottom: 2rem;
+}
+
+.welcome-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #fbe8a6;
+  margin-bottom: 1rem;
+}
+
+.welcome-subtitle {
+  font-size: 1.125rem;
+  color: #d2fdff;
+  margin-bottom: 2rem;
+}
+
+.welcome-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .welcome-buttons {
+    flex-direction: row;
+    gap: 1.5rem;
+  }
+}
+
+.welcome-login-button {
+  display: inline-block;
+  padding: 0.75rem 2rem;
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: white;
+  background-color: #f4976c;
+  border-radius: 9999px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+.welcome-login-button:hover {
+  background-color: #f08055;
+}
+
+.welcome-login-button:focus {
+  outline: 1px solid #f4976c; 
+}
+
+.welcome-register-button {
+  display: inline-block;
+  padding: 0.75rem 2rem;
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #303c6c;
+  background-color: #d2fdff;
+  border: 1px solid #b4dfe5;
+  border-radius: 9999px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+.welcome-register-button:hover {
+  background-color: #b4dfe5;
+}
+
+.welcome-register-button:focus {
+  outline: 1px solid #b4dfe5; 
+}
