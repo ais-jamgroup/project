@@ -13,6 +13,21 @@ export default {
     const encryptionKey = ref('');
     const encryptionType = ref('none');
     const searchQuery = ref('');
+    const snackbar = ref({
+      message: '',
+      visible: false,
+      type: '', // 'error' or 'success'
+    });
+
+    const showSnackbar = (message, type = 'error') => {
+      snackbar.value.message = message;
+      snackbar.value.type = type;
+      snackbar.value.visible = true;
+
+      setTimeout(() => {
+        snackbar.value.visible = false;
+      }, 3000); // Snackbar disappears after 3 seconds
+    };
 
     const filteredUsers = computed(() => {
       if (!searchQuery.value) return users.value;
@@ -21,7 +36,6 @@ export default {
       );
     });
 
-    // Atbash encryption logic
     const atbashEncrypt = (text) => {
       const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
       const reversedAlphabet = 'ZYXWVUTSRQPONMLKJIHGFEDCBA';
@@ -33,7 +47,7 @@ export default {
           const baseChar = char.toUpperCase();
           const index = alphabet.indexOf(baseChar);
 
-          if (index === -1) return char; // Non-alphabetic characters remain unchanged
+          if (index === -1) return char;
 
           const reverseChar = reversedAlphabet[index];
           return isUpperCase ? reverseChar : reverseChar.toLowerCase();
@@ -52,7 +66,7 @@ export default {
           const baseChar = char.toUpperCase();
           const index = alphabet.indexOf(baseChar);
 
-          if (index === -1) return char; // Non-alphabetic characters remain unchanged
+          if (index === -1) return char;
 
           const reverseChar = reversedAlphabet[index];
           const forwardIndex = (alphabet.indexOf(reverseChar) + 1) % alphabet.length;
@@ -80,6 +94,7 @@ export default {
         decryptedMessage: null,
         decryptionKey: '',
         showDecryptionField: false,
+        isInvalidKey: false,
       }));
     };
 
@@ -99,7 +114,7 @@ export default {
 
     const sendMessage = async () => {
       if (!newMessage.value.trim()) {
-        alert('Message cannot be empty.');
+        showSnackbar('Message cannot be empty.', 'error');
         return;
       }
 
@@ -108,7 +123,7 @@ export default {
 
       if (encryptionType.value === 'advancedAtbash') {
         if (!encryptionKey.value.trim()) {
-          alert('Please provide an encryption key for AdvancedAtbash.');
+          showSnackbar('Please provide an encryption key for AdvancedAtbash.', 'error');
           return;
         }
 
@@ -116,7 +131,7 @@ export default {
         isEncrypted = true;
       } else if (encryptionType.value === 'atbash') {
         if (!encryptionKey.value.trim()) {
-          alert('Please provide an encryption key for Atbash.');
+          showSnackbar('Please provide an encryption key for Atbash.', 'error');
           return;
         }
 
@@ -124,7 +139,7 @@ export default {
         isEncrypted = true;
       } else if (encryptionType.value === 'aes') {
         if (!encryptionKey.value.trim()) {
-          alert('Please provide an encryption key for AES.');
+          showSnackbar('Please provide an encryption key for AES.', 'error');
           return;
         }
 
@@ -154,19 +169,35 @@ export default {
           decryptedMessage: null,
           decryptionKey: '',
           showDecryptionField: false,
+          isInvalidKey: false,
         });
 
         newMessage.value = '';
         encryptionKey.value = '';
+        showSnackbar('Message sent successfully!', 'success');
       } catch (error) {
-        alert('An error occurred while sending the message.');
+        showSnackbar('An error occurred while sending the message.', 'error');
         console.error(error);
       }
     };
 
+    const deleteMessage = async (messageId) => {
+    try {
+        await axios.delete(`/messages/${messageId}`);
+
+        // Remove the message from the local array
+        messages.value = messages.value.filter((msg) => msg.id !== messageId);
+
+        showSnackbar('Message deleted successfully!', 'success');
+    } catch (error) {
+        console.error('Error deleting message:', error);
+        showSnackbar('Failed to delete message.', 'error');
+    }
+};
+
     const decryptMessage = async (message) => {
       if (!message.decryptionKey) {
-        alert('Please enter a decryption key.');
+        showSnackbar('Please enter a decryption key.', 'error');
         return;
       }
 
@@ -187,12 +218,17 @@ export default {
 
           message.showDecryptionField = false;
           message.decryptionKey = '';
+          message.isInvalidKey = false;
+
+          showSnackbar('Message decrypted successfully!', 'success');
         } else {
-          alert('Invalid decryption key!');
+          message.isInvalidKey = true;
+          showSnackbar('Invalid decryption key!', 'error');
         }
       } catch (error) {
-        alert('Decryption failed! Please try again.');
+        message.isInvalidKey = true;
         console.error(error);
+        showSnackbar('Invalid decryption key', 'error');
       }
     };
 
@@ -228,16 +264,19 @@ export default {
       searchQuery,
       filteredUsers,
       handleSearch,
+      snackbar,
+      showSnackbar,
+      deleteMessage,
     };
+    
   },
+  
 };
 </script>
 
 <template>
   <div class="messaging-container">
-    <!-- Receiver Selection -->
     <div class="user-profiles">
-      <!-- Search Input -->
       <div class="search-container">
         <input
           type="text"
@@ -250,7 +289,6 @@ export default {
         </button>
       </div>
 
-      <!-- Filtered User List -->
       <div
         v-for="user in filteredUsers"
         :key="user.id"
@@ -263,14 +301,11 @@ export default {
       </div>
     </div>
 
-    <!-- Messages List -->
     <div class="messages-list">
       <div v-for="message in messages" :key="message.id" class="message">
         <template v-if="message.is_encrypted && message.encryption_type === 'aes'">
-          <!-- AES Encrypted Message -->
           <strong>{{ message.sender?.name || 'Unknown Sender' }}:</strong>
           <div>
-            <!-- Placeholder for AES-encrypted message -->
             <span
               v-if="!message.decryptedMessage && !message.showDecryptionField"
               @click="toggleDecryptionField(message)"
@@ -279,105 +314,119 @@ export default {
               🔒 Encrypted Message
             </span>
 
-            <!-- Field to enter the decryption key -->
             <div v-if="message.showDecryptionField && !message.decryptedMessage" class="decryption-container">
               <input
                 type="password"
                 v-model="message.decryptionKey"
                 placeholder="Enter decryption key"
+                :class="{ invalid: message.isInvalidKey }"
                 class="decryption-input"
               />
               <button @click="decryptMessage(message)" class="decryption-button">
                 Decrypt
               </button>
               <button @click="toggleDecryptionField(message)" class="cancel-button">
-              Cancel
-            </button>
+                Cancel
+              </button>
+              <button @click="deleteMessage(message.id)" class="delete-button">
+                Delete
+              </button>
+              <p v-if="message.isInvalidKey" class="error-message"></p>
             </div>
 
-            <!-- Display decrypted AES message -->
-            <span v-else-if="message.decryptedMessage">🔓 {{ message.decryptedMessage }}</span>
+            <span v-else-if="message.decryptedMessage">🔓 {{ message.decryptedMessage }}
+              <button @click="deleteMessage(message.id)" class="delete-button">
+                Delete
+              </button>
+            </span>
           </div>
         </template>
 
         <template v-else-if="message.is_encrypted && message.encryption_type === 'atbash'">
-          <!-- Atbash Encrypted Message -->
           <strong>{{ message.sender?.name || 'Unknown Sender' }}:</strong>
           <div>
-            <!-- Show encrypted message and a clickable toggle -->
             <span
               v-if="!message.decryptedMessage && !message.showDecryptionField"
               @click="toggleDecryptionField(message)"
               class="encrypted-message"
             >
-            
-              🔒 {{ message.message }} 
+              🔒 {{ message.message }}
             </span>
 
-            <!-- Show the decrypt button -->
             <div v-if="message.showDecryptionField && !message.decryptedMessage" class="decryption-container">
               <input
-                  type="password"
-                  v-model="message.decryptionKey"
-                  placeholder="Enter decryption key"
-                  class="decryption-input"
-                />
+                type="password"
+                v-model="message.decryptionKey"
+                placeholder="Enter decryption key"
+                :class="{ invalid: message.isInvalidKey }"
+                class="decryption-input"
+              />
               <button @click="decryptMessage(message)" class="decryption-button">
                 Decrypt
               </button>
               <button @click="toggleDecryptionField(message)" class="cancel-button">
                 Cancel
               </button>
+              <button @click="deleteMessage(message.id)" class="delete-button">
+                Delete
+              </button>
+              <p v-if="message.isInvalidKey" class="error-message"></p>
             </div>
 
-            <!-- Show decrypted message -->
-            <span v-else-if="message.decryptedMessage">🔓 {{ message.decryptedMessage }}</span>
+            <span v-else-if="message.decryptedMessage">
+              🔓 {{ message.decryptedMessage }}
+              <button @click="deleteMessage(message.id)" class="delete-button">
+                Delete
+              </button>
+            </span>
           </div>
         </template>
+
         <template v-else-if="message.is_encrypted && message.encryption_type === 'advancedAtbash'">
-          <!-- Atbash Encrypted Message -->
           <strong>{{ message.sender?.name || 'Unknown Sender' }}:</strong>
           <div>
-            <!-- Show encrypted message and a clickable toggle -->
             <span
               v-if="!message.decryptedMessage && !message.showDecryptionField"
               @click="toggleDecryptionField(message)"
               class="encrypted-message"
             >
-            
-              🔒 {{ message.message }} 
-            </span>
+              🔒 {{ message.message }}</span>
 
-            <!-- Show the decrypt button -->
             <div v-if="message.showDecryptionField && !message.decryptedMessage" class="decryption-container">
               <input
-                  type="password"
-                  v-model="message.decryptionKey"
-                  placeholder="Enter decryption key"
-                  class="decryption-input"
-                />
+                type="password"
+                v-model="message.decryptionKey"
+                placeholder="Enter decryption key"
+                :class="{ invalid: message.isInvalidKey }"
+                class="decryption-input"
+              />
               <button @click="decryptMessage(message)" class="decryption-button">
                 Decrypt
               </button>
               <button @click="toggleDecryptionField(message)" class="cancel-button">
                 Cancel
               </button>
+              <button @click="deleteMessage(message.id)" class="delete-button">
+                Delete
+              </button>
+              <p v-if="message.isInvalidKey" class="error-message"></p>
             </div>
 
-            <!-- Show decrypted message -->
-            <span v-else-if="message.decryptedMessage">🔓 {{ message.decryptedMessage }}</span>
+            <span v-else-if="message.decryptedMessage">🔓 {{ message.decryptedMessage }}
+              <button @click="deleteMessage(message.id)" class="decrypted-delete-button">
+                Delete
+              </button>
+            </span>
           </div>
         </template>
 
         <template v-else>
-          <!-- Plaintext Message -->
           <strong>{{ message.sender?.name || 'Unknown Sender' }}:</strong>
           {{ message.message }}
         </template>
       </div>
     </div>
 
-    <!-- Message Input -->
     <div class="message-input">
       <input type="text" v-model="newMessage" placeholder="Type a message..." />
       <div>
@@ -390,13 +439,23 @@ export default {
 
         <input
           type="password"
-          v-if="encryptionType === 'aes' || encryptionType === 'atbash'|| encryptionType === 'advancedAtbash'"
+          v-if="encryptionType === 'aes' || encryptionType === 'atbash' || encryptionType === 'advancedAtbash'"
           v-model="encryptionKey"
           placeholder="Enter encryption key"
         />
-
       </div>
       <button @click="sendMessage">Send</button>
+    </div>
+
+  
+
+
+    <!-- Snackbar -->
+    <div
+      class="snackbar"
+      :class="{ show: snackbar.visible, error: snackbar.type === 'error', success: snackbar.type === 'success' }"
+    >
+      {{ snackbar.message }}
     </div>
   </div>
 </template>
