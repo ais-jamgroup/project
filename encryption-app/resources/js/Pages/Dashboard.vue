@@ -3,7 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import Messaging from './Messaging.vue';
 import MinimizableMessaging from './Behavior/MinimizableMessaging.vue';
-import '../../css/dashboard/dashboard.css';
+import '../../css/dashboard.css'; 
 import FreedomWell from './FreedomWell.vue';
 
 const props = defineProps({
@@ -12,15 +12,14 @@ const props = defineProps({
         required: true,
     },
 });
-
 </script>
 
 <template>
     <Head title="Dashboard" />
 
     <AuthenticatedLayout>
-        <div class="dashboard-container relative">
-            <div class="absolute top-4 right-6 flex items-center space-x-4">
+        <div class="dashboard-container">
+            <div class="absolute">
                 <img 
                     :src="auth.user.avatar || '/images/default-avatar.png'" 
                     alt="User Avatar" 
@@ -38,8 +37,7 @@ const props = defineProps({
                     trigger="hover"
                     stroke="light"
                     colors="primary:#121331,secondary:#ee8f66,tertiary:#ffc738,quaternary:#303c6c,quinary:#ebe6ef"
-                    style="width:50px;height:50px">
-                </lord-icon>
+                ></lord-icon>
                 <h1 class="app-name">DeepText</h1>
                 <p class="app-tagline">Your space for secure and free expression</p>
             </div>
@@ -48,7 +46,7 @@ const props = defineProps({
                 <FreedomWell />
             </div>
 
-            <div>
+            <div class="messaging-container-wrapper">
                 <MinimizableMessaging>
                     <Messaging :userId="auth.user.id" />
                 </MinimizableMessaging>
