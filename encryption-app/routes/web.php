@@ -44,4 +44,15 @@ Route::get('/users', function () {
 
 Route::post('/validate-key', [MessageController::class, 'validateKey']);
 
+use App\Http\Controllers\FreedomWellController;
+
+// FreedomWell Routes
+Route::get('/freedomwell/posts', [FreedomWellController::class, 'index']); // Fetch all posts
+//Route::post('/freedomwell/posts', [FreedomWellController::class, 'store']); // Add a new post
+
+Route::middleware('auth')->group(function () {
+    Route::post('/freedomwell/posts', [FreedomWellController::class, 'store']);
+});
+
+
 require __DIR__.'/auth.php';
