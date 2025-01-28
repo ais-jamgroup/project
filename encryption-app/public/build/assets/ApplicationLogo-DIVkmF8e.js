@@ -1,0 +1,1 @@
+import{_ as o}from"./_plugin-vue_export-helper-DlAUqK2U.js";import{o as e,f as t}from"./app-DOWDtDR1.js";const c={},s={src:"/images/logo.png",alt:"DeepText Logo",class:"w-15 h-auto"};function r(n,a){return e(),t("img",s)}const p=o(c,[["render",r]]);export{p as A};
