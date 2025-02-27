@@ -34,10 +34,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/messages', [MessageController::class, 'index']);
     Route::post('/messages', [MessageController::class, 'store']);
 });
+Route::delete('/messages/{id}', [MessageController::class, 'destroy']);
 
 //retrieve users
 Route::get('/users', function () {
     return \App\Models\User::where('id', '!=', auth()->id())->get();
 })->middleware('auth');
+
+
+Route::post('/validate-key', [MessageController::class, 'validateKey']);
 
 require __DIR__.'/auth.php';
